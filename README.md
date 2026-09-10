@@ -7,6 +7,9 @@
 [![License](https://img.shields.io/badge/License-MIT-emerald?style=for-the-badge)](LICENSE)
 [![Binary Size](https://img.shields.io/badge/Size-%3C8MB%20Standalone-blueviolet?style=for-the-badge)](https://github.com)
 
+
+![LeadHunter AI Desk Dashboard](screenshot_app.png)
+
 > 🚀 **Built 100% with [VisualNEO Win](https://visualneowin.com)** — The modern, anti-bloat Windows Rapid Application Development (RAD) IDE.
 > Unlike sluggish 150MB Electron apps, **LeadHunter AI Desk** combines native Win32 execution with modern Tailwind CSS / HTML5 UI via Microsoft Edge WebView2. 
 > 
