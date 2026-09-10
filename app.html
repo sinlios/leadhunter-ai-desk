@@ -1,0 +1,2209 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LeadHunter AI Desk</title>
+  <!-- Local Tailwind CSS Runtime (100% Offline) -->
+  <script src="tailwind.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom sleek scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col overflow-hidden font-sans antialiased select-none">
+
+  <!-- Top Navigation Header -->
+  <header class="bg-slate-900/80 backdrop-blur border-b border-slate-800 px-6 py-3 flex items-center justify-between shrink-0">
+    <div class="flex items-center space-x-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-brand-500/20">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <h1 class="font-bold text-lg tracking-tight text-white">LeadHunter <span class="text-brand-500">AI Desk</span></h1>
+          <div id="header-license-badge"><span class="px-2 py-0.5 text-[10px] font-semibold bg-brand-500/10 text-brand-400 border border-brand-500/20 rounded-full">PRO v1.0</span></div>
+        </div>
+        <p class="text-xs text-slate-400">Autonomous B2B Lead Outreach & Cold Email Suite</p>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="flex space-x-1 bg-slate-950/60 p-1 rounded-xl border border-slate-800/80">
+      <button onclick="switchTab('leads')" id="tab-btn-leads" class="px-4 py-1.5 rounded-lg text-xs font-medium transition-all bg-brand-600 text-white shadow-sm">
+        Leads & Campaign
+      </button>
+      <button onclick="switchTab('prompt')" id="tab-btn-prompt" class="px-4 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-white">
+        AI Prompt Template
+      </button>
+      <button onclick="switchTab('settings')" id="tab-btn-settings" class="px-4 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-white">
+        Credentials & Settings
+      </button>
+    </nav>
+
+    <!-- Quick Help Guide Button -->
+    <button onclick="openQuickGuideModal()" class="px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700 text-amber-300 hover:text-amber-200 border border-amber-500/30 rounded-xl text-xs font-medium transition flex items-center space-x-1.5 shadow-sm" title="Learn how to generate and send leads in 3 quick steps">
+      <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <span>Quick Guide</span>
+    </button>
+
+    <!-- Engine Connection Status -->
+    <div class="flex items-center space-x-2 text-xs">
+      <span class="relative flex h-2 w-2">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+      </span>
+      <span class="text-slate-400" id="status-tag">Engine Ready</span>
+    </div>
+  </header>
+
+  <!-- Main Content Viewport -->
+  <main class="flex-1 overflow-hidden relative">
+
+    <!-- ============================================================ -->
+    <!-- TAB 1: LEADS & OUTREACH CAMPAIGN -->
+    <!-- ============================================================ -->
+    <div id="tab-leads" class="h-full flex flex-col p-6 space-y-4">
+
+      <!-- Sleek Compact Metrics Ribbon -->
+      <div class="bg-slate-900/80 backdrop-blur border border-slate-800 rounded-2xl px-5 py-2.5 flex items-center justify-between gap-6 shrink-0 text-xs shadow-sm">
+        <div class="flex items-center space-x-6">
+          <div class="flex items-center space-x-2">
+            <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+            <span class="text-slate-400 font-medium">Total Prospects:</span>
+            <span class="font-bold text-white text-sm" id="stat-total">0</span>
+          </div>
+          <div class="h-4 w-px bg-slate-800"></div>
+          <div class="flex items-center space-x-2">
+            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+            <span class="text-slate-400 font-medium">AI Drafted:</span>
+            <span class="font-bold text-cyan-400 text-sm" id="stat-generated">0</span>
+          </div>
+          <div class="h-4 w-px bg-slate-800"></div>
+          <div class="flex items-center space-x-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span class="text-slate-400 font-medium">Sent via SMTP:</span>
+            <span class="font-bold text-emerald-400 text-sm" id="stat-sent">0</span>
+          </div>
+          <div class="h-4 w-px bg-slate-800"></div>
+          <div class="flex items-center space-x-2">
+            <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+            <span class="text-slate-400 font-medium">Delivery Rate:</span>
+            <span class="font-bold text-indigo-300 text-sm" id="stat-rate">100%</span>
+          </div>
+        </div>
+
+        <!-- Toggle AI Lead Finder Button -->
+        <div class="flex items-center space-x-3">
+          <button type="button" onclick="toggleLeadFinderDrawer()" id="btn-toggle-lead-finder" class="px-3.5 py-1.5 bg-gradient-to-r from-indigo-500/15 to-purple-500/15 hover:from-indigo-500/25 hover:to-purple-500/25 border border-indigo-500/30 text-indigo-300 rounded-xl text-xs font-semibold flex items-center space-x-2 transition cursor-pointer shadow-sm shadow-indigo-950/40">
+            <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+            <span id="label-toggle-finder">✨ AI Lead Finder</span>
+            <svg id="arrow-toggle-finder" class="w-3 h-3 text-indigo-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Dedicated Collapsible AI Lead Finder Console -->
+      <div id="lead-finder-drawer" class="hidden bg-slate-900/95 border border-indigo-500/30 rounded-2xl p-4 space-y-3 shrink-0 shadow-xl shadow-indigo-950/30 transition-all">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+            <div>
+              <h3 class="text-xs font-bold text-white tracking-wide">AI Lead Discovery & Real-Time Web Scraping</h3>
+              <p class="text-[10px] text-slate-400">Extract verified B2B companies, active websites, phone numbers & contact emails directly into your pipeline.</p>
+            </div>
+          </div>
+          <button type="button" onclick="toggleLeadFinderDrawer(false)" class="text-slate-400 hover:text-white text-xs px-2 py-1 rounded-lg hover:bg-slate-800 transition">✕ Close</button>
+        </div>
+
+        <div class="grid grid-cols-12 gap-3 items-end">
+          <div class="col-span-5">
+            <label class="block text-[11px] font-medium text-slate-300 mb-1">Target Niche or Industry:</label>
+            <input type="text" id="input-niche" placeholder="e.g. Dental Clinics, Luxury Real Estate, Boutique Hotels..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+          </div>
+          <div class="col-span-4">
+            <label class="block text-[11px] font-medium text-slate-300 mb-1">City / Region / Country:</label>
+            <input type="text" id="input-location" placeholder="e.g. Miami FL, Austin TX, London UK, Madrid..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+          </div>
+          <div class="col-span-1">
+            <label class="block text-[11px] font-medium text-slate-300 mb-1">Batch:</label>
+            <select id="input-lead-count" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2 py-2 text-xs text-slate-300 focus:outline-none focus:border-indigo-500 font-medium">
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+            </select>
+          </div>
+          <div class="col-span-2">
+            <button type="button" onclick="triggerDiscoverLeads()" id="btn-discover-leads" class="w-full py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-indigo-500/25 transition flex items-center justify-center space-x-1.5 cursor-pointer">
+              <svg id="icon-discover" class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <span id="label-discover">Discover Leads</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modern Unified Toolbar -->
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-3 flex items-center justify-between gap-3 shrink-0">
+        
+        <!-- Left: Quick Search & Status Pills -->
+        <div class="flex items-center space-x-3 flex-1 min-w-0">
+          <!-- Search input -->
+          <div class="relative w-60 shrink-0">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+            <input type="text" id="filter-search-input" oninput="setLeadsSearchQuery(this.value)" placeholder="Search name, city, email..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500">
+          </div>
+
+          <!-- Status Filter Pills -->
+          <div class="flex items-center space-x-1 bg-slate-950/80 p-1 rounded-xl border border-slate-800 shrink-0 text-xs">
+            <button type="button" onclick="setLeadsFilter('all')" id="filter-btn-all" class="px-2.5 py-1 rounded-lg font-semibold transition bg-brand-600 text-white shadow-sm">All (<span id="filter-count-all">0</span>)</button>
+            <button type="button" onclick="setLeadsFilter('pending')" id="filter-btn-pending" class="px-2.5 py-1 rounded-lg font-medium transition text-slate-400 hover:text-white">Pending (<span id="filter-count-pending">0</span>)</button>
+            <button type="button" onclick="setLeadsFilter('ready')" id="filter-btn-ready" class="px-2.5 py-1 rounded-lg font-medium transition text-slate-400 hover:text-white">Ready (<span id="filter-count-ready">0</span>)</button>
+            <button type="button" onclick="setLeadsFilter('sent')" id="filter-btn-sent" class="px-2.5 py-1 rounded-lg font-medium transition text-slate-400 hover:text-white">Sent (<span id="filter-count-sent">0</span>)</button>
+          </div>
+        </div>
+
+        <!-- Right: Primary Outreach Actions & List Management -->
+        <div class="flex items-center space-x-2 shrink-0">
+          <!-- Selection Counter (dynamic pill) -->
+          <div id="selection-pill" class="hidden px-2.5 py-1 bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 rounded-lg text-xs font-semibold flex items-center space-x-1.5">
+            <span id="selected-count-badge">0</span> selected
+          </div>
+
+          <!-- Draft AI Button with count -->
+          <button type="button" onclick="triggerGenerateAI()" id="btn-draft-ai" class="px-3.5 py-1.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-brand-500/20 transition flex items-center space-x-1.5 cursor-pointer">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            <span id="label-draft-ai">Draft AI</span>
+          </button>
+
+          <!-- Send Campaign Button -->
+          <button type="button" onclick="triggerSendCampaign()" id="btn-send-smtp" class="px-3.5 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-emerald-500/20 transition flex items-center space-x-1.5 cursor-pointer">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            <span id="label-send-smtp">Send Campaign</span>
+          </button>
+
+          <div class="h-4 w-px bg-slate-800 mx-1"></div>
+
+          <!-- Add Prospects Button -->
+          <button type="button" onclick="openAddProspectsModal('manual')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-xl text-xs font-medium border border-slate-700 transition flex items-center space-x-1.5 shadow-sm cursor-pointer" title="Add prospects manually, via Smart Paste, or CSV">
+            <svg class="w-3.5 h-3.5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span>+ Add Leads</span>
+          </button>
+
+          <!-- Import CSV Button -->
+          <input type="file" id="csv-file-picker" accept=".csv" class="hidden" onchange="handleCSVFileSelected(event)">
+          <button type="button" onclick="triggerImportCSV()" class="p-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-slate-200 rounded-xl border border-slate-700/60 transition cursor-pointer" title="Import CSV File">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+          </button>
+
+          <!-- Export CSV Button -->
+          <button type="button" onclick="triggerExportCSV()" class="p-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-slate-200 rounded-xl border border-slate-700/60 transition cursor-pointer" title="Export to CSV">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Active Queue Progress Bar -->
+      <div id="progress-bar-container" class="hidden bg-slate-900 border border-slate-800 rounded-xl p-3 flex items-center space-x-4">
+        <div class="flex-1">
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-slate-300 font-medium" id="progress-status-label">Processing queue...</span>
+            <span class="text-brand-400 font-semibold" id="progress-percent-label">0%</span>
+          </div>
+          <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
+            <div id="progress-bar-fill" class="bg-gradient-to-r from-brand-500 to-cyan-400 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+        <button type="button" onclick="triggerCancelTask()" class="px-3 py-1 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 border border-rose-500/30 rounded-lg text-xs font-medium cursor-pointer">
+          Stop
+        </button>
+      </div>
+
+      <!-- High-Volume Safe Warning Banner -->
+      <div id="high-volume-banner" class="hidden shrink-0 bg-amber-500/10 border border-amber-500/25 rounded-2xl p-3 flex items-center justify-between text-xs text-amber-200">
+        <div class="flex items-center space-x-2.5">
+          <svg class="w-5 h-5 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          <div>
+            <span class="font-semibold text-amber-300">High-Volume List Detected:</span>
+            <span id="high-volume-text" class="text-amber-200/90 ml-1">You have loaded over 150 prospects. Pagination is active for silky smooth performance.</span>
+          </div>
+        </div>
+        <div class="text-[11px] text-amber-300/80">
+          💡 <span class="font-medium">Tip:</span> Draft and send in batches of 20-50 to protect your domain reputation.
+        </div>
+      </div>
+
+      <!-- Interactive Leads DataGrid -->
+      <div class="flex-1 bg-slate-900/60 border border-slate-800/80 rounded-2xl overflow-hidden flex flex-col">
+        <div class="overflow-x-auto flex-1">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 bg-slate-950/70 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                <th class="py-3 px-4 w-10 text-center">
+                  <input type="checkbox" id="check-all" onchange="toggleSelectAll(this)" class="rounded bg-slate-800 border-slate-700 text-brand-600 focus:ring-0">
+                </th>
+                <th class="py-3 px-4">Company / Business</th>
+                <th class="py-3 px-4">Location</th>
+                <th class="py-3 px-4">Contact Email</th>
+                <th class="py-3 px-4">Phone / Website</th>
+                <th class="py-3 px-4">Status</th>
+                <th class="py-3 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="leads-table-body" class="divide-y divide-slate-800/60 text-xs">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Footer & Pagination Controls -->
+        <div class="border-t border-slate-800 px-4 py-2.5 bg-slate-950/60 flex items-center justify-between text-xs text-slate-400 shrink-0">
+          <div class="flex items-center space-x-3">
+            <span id="table-summary-text" class="font-medium text-slate-300">Showing 0 prospects</span>
+            <div class="flex items-center space-x-1.5 text-[11px] text-slate-400">
+              <span>Rows per page:</span>
+              <select id="pagination-page-size" onchange="changePageSize(this.value)" class="bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-slate-200 focus:outline-none focus:border-brand-500">
+                <option value="25" selected>25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="250">250</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Pagination Navigation Buttons -->
+          <div class="flex items-center space-x-2" id="pagination-controls">
+            <span id="pagination-info" class="text-[11px] text-slate-400 mr-1">Page 1 of 1</span>
+            <button onclick="goToPrevPage()" id="btn-prev-page" disabled class="p-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition" title="Previous page">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <button onclick="goToNextPage()" id="btn-next-page" disabled class="p-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition" title="Next page">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <div class="h-4 w-px bg-slate-800 mx-1"></div>
+            <button onclick="clearAllLeads()" class="text-slate-500 hover:text-rose-400 text-xs transition">Clear list</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB 2: AI PROMPT TEMPLATE CONFIGURATION -->
+    <!-- ============================================================ -->
+    <div id="tab-prompt" class="hidden h-full flex flex-col p-6 space-y-4 overflow-y-auto">
+      <div class="max-w-6xl mx-auto w-full space-y-6">
+        
+        <div>
+          <h2 class="text-lg font-bold text-white">B2B Outreach Prompt Template & Language</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Configure the target language, email structure, and AI copywriting style for your outreach campaign.</p>
+        </div>
+
+        <!-- Language & Format Selection Card -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="space-y-1">
+            <div class="flex items-center space-x-2">
+              <span class="text-xs font-semibold text-white">Target Email Language:</span>
+              <span class="px-2 py-0.5 text-[10px] font-medium bg-brand-500/10 text-brand-400 border border-brand-500/20 rounded-md">Multi-Language AI</span>
+            </div>
+            <p class="text-[11px] text-slate-400">The language in which the AI writes the cold emails and subject lines to your prospects.</p>
+          </div>
+          <div class="w-full md:w-64 shrink-0">
+            <select id="prompt-language" onchange="onLanguageChange(this.value)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 font-medium focus:outline-none focus:border-brand-500">
+              <option value="English" selected>🇺🇸 English (Default)</option>
+              <option value="Spanish">🇪🇸 Español (Spanish)</option>
+              <option value="French">🇫🇷 Français (French)</option>
+              <option value="German">🇩🇪 Deutsch (German)</option>
+              <option value="Italian">🇮🇹 Italiano (Italian)</option>
+              <option value="Portuguese">🇵🇹 Português (Portuguese)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Dynamic Variable Chips -->
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 space-y-2">
+          <p class="text-xs font-semibold text-slate-300">Available dynamic variables (click to insert):</p>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="insertVariable('{company_name}')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-brand-300 rounded-lg text-xs font-mono border border-slate-700 transition">+{company_name}</button>
+            <button onclick="insertVariable('{city}')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-brand-300 rounded-lg text-xs font-mono border border-slate-700 transition">+{city}</button>
+            <button onclick="insertVariable('{website}')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-brand-300 rounded-lg text-xs font-mono border border-slate-700 transition">+{website}</button>
+            <button onclick="insertVariable('{niche}')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-brand-300 rounded-lg text-xs font-mono border border-slate-700 transition">+{niche}</button>
+            <button onclick="insertVariable('{my_name}')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded-lg text-xs font-mono border border-slate-700 transition">+{my_name}</button>
+            <button onclick="insertVariable('{my_service}')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded-lg text-xs font-mono border border-slate-700 transition">+{my_service}</button>
+          </div>
+        </div>
+
+        <!-- System Prompt Editor -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-300">System Role (Persona):</label>
+          <textarea id="prompt-system" rows="3" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 font-mono focus:outline-none focus:border-brand-500">You are a world-class B2B sales copywriter specializing in natural, highly personalized, and direct cold outreach. Never sound robotic or generic.</textarea>
+        </div>
+
+        <!-- User Prompt Instructions -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-semibold text-slate-300">Prompt Instructions & Structure (HTML Output):</label>
+            <span class="text-[11px] text-brand-400 font-mono">Outputs clean HTML: &lt;p&gt;, &lt;a&gt;, &lt;strong&gt;, &lt;br&gt;</span>
+          </div>
+          <textarea id="prompt-user" rows="8" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 font-mono focus:outline-none focus:border-brand-500">Write a short, highly persuasive cold outreach email in {language} (under 95 words) to {company_name} located in {city}.
+
+My name is {my_name} and we help local businesses with {my_service}.
+Structure:
+1. Friendly greeting mentioning {company_name} in {city}.
+2. Specific observation or genuine compliment highlighting how {my_service} can help them gain more clients.
+3. Low-friction call-to-action (e.g. "Would you be open to a quick 5-minute chat this week?").
+4. Professional signature with my name.
+
+Format requirements:
+- Use clean HTML tags: wrap paragraphs in &lt;p&gt;...&lt;/p&gt;, use &lt;strong&gt; for emphasis where natural, and &lt;br&gt; for line breaks in the signature.
+- If referencing my website or calendar, you may use &lt;a href="..." class="text-indigo-600 underline"&gt;link text&lt;/a&gt;.
+- Return ONLY the clean inner HTML body. Do not include markdown codeblocks (no ```html), and do not include subject line or &lt;html&gt;/&lt;body&gt; wrapper tags.</textarea>
+        </div>
+
+        <!-- Save Button -->
+        <div class="flex justify-end">
+          <button onclick="savePromptSettings()" class="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-brand-500/20 transition">
+            Save Prompt Template
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB 3: CREDENTIALS & SETTINGS -->
+    <!-- ============================================================ -->
+    <div id="tab-settings" class="hidden h-full flex flex-col p-6 space-y-4 overflow-y-auto">
+      <div class="max-w-6xl mx-auto w-full space-y-6">
+
+        <div>
+          <h2 class="text-lg font-bold text-white">Credentials & Global Settings</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Enter your OpenRouter and SMTP2GO API keys. Credentials are encrypted and kept 100% locally on your machine.</p>
+        </div>
+
+        <!-- Software License & Commercial Registration Card -->
+        <div class="bg-gradient-to-r from-slate-900/90 via-slate-900/70 to-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-sm font-bold text-white">Software License & Activation</h3>
+                <p id="settings-lic-user" class="text-[11px] text-slate-400 font-mono">Checking local license status...</p>
+              </div>
+            </div>
+            <div id="settings-lic-badge">
+              <span class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700">Checking...</span>
+            </div>
+          </div>
+
+          <p id="settings-lic-status-desc" class="text-xs text-slate-300">
+            Checking local license verification and single-user activation status...
+          </p>
+
+          <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between flex-wrap gap-3">
+            <div class="text-[11px] text-slate-400 flex items-center space-x-1.5">
+              <svg class="w-3.5 h-3.5 text-brand-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+              </svg>
+              <span>Purchased on <strong>Gumroad</strong> or <strong>CodeCanyon</strong>? Enter your name and registration key.</span>
+            </div>
+            <button type="button" onclick="openLicenseDialog()" class="px-4 py-2 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-brand-500/20 transition flex items-center space-x-2 cursor-pointer">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+              </svg>
+              <span>Enter License Key</span>
+            </button>
+          </div>
+        </div>
+
+
+
+        <!-- Settings 2-Column Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+
+        <!-- OpenRouter AI Section -->
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-4">
+          <div class="flex items-center space-x-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-brand-500"></span>
+            <h3 class="text-sm font-bold text-white">AI Engine (OpenRouter Multi-Model)</h3>
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">OpenRouter API Key:</label>
+              <input type="password" id="cfg-openrouter-key" placeholder="sk-or-v1-..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500 font-mono">
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-xs font-medium text-slate-300">OpenRouter AI Model (Alphabetical):</label>
+                <div class="flex items-center space-x-2">
+                  <span id="model-fetch-status" class="text-[10px] text-slate-400">Loading catalogue...</span>
+                  <button type="button" onclick="fetchOpenRouterModels(true)" class="text-[10px] text-brand-400 hover:text-brand-300 transition font-medium" title="Sync live models from OpenRouter">↻ Refresh</button>
+                </div>
+              </div>
+
+              <!-- Quick Model Search Filter -->
+              <div class="mb-2">
+                <input type="text" id="model-search-input" oninput="filterModels(this.value)" placeholder="Filter models by name (e.g. deepseek, claude, free, gpt, llama, qwen)..." class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500">
+              </div>
+
+              <!-- Model Selector Dropdown -->
+              <select id="cfg-openrouter-model" onchange="onModelSelectChange(this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500 font-mono">
+                <!-- Dynamically populated alphabetically -->
+              </select>
+
+              <!-- Dynamic Model Intelligence & Cost Card -->
+              <div id="model-info-card" class="mt-2.5 p-3.5 bg-slate-950/90 border border-slate-800/80 rounded-xl space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2">
+                    <span id="model-info-badge" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-brand-500/10 text-brand-400 border border-brand-500/20">DeepSeek</span>
+                    <span id="model-info-free" class="hidden px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">100% FREE TIER</span>
+                    <span id="model-info-id" class="text-[11px] font-mono text-slate-400 truncate max-w-[260px]">deepseek/deepseek-chat</span>
+                  </div>
+                  <span id="model-info-context" class="text-[11px] font-medium text-slate-300">128K context</span>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 pt-1 border-t border-slate-800/60 text-[11px]">
+                  <div>
+                    <p class="text-[10px] text-slate-500">Input Cost / 1M</p>
+                    <p id="model-info-input-cost" class="font-mono text-slate-200 font-medium">$0.14</p>
+                  </div>
+                  <div>
+                    <p class="text-[10px] text-slate-500">Output Cost / 1M</p>
+                    <p id="model-info-output-cost" class="font-mono text-slate-200 font-medium">$0.28</p>
+                  </div>
+                  <div>
+                    <p class="text-[10px] text-slate-500">Est. 1,000 Cold Emails</p>
+                    <p id="model-info-email-cost" class="font-mono text-emerald-400 font-semibold">~$0.07</p>
+                  </div>
+                </div>
+
+                <p id="model-info-desc" class="text-[11px] text-slate-400 line-clamp-2 pt-1 border-t border-slate-800/40">
+                  Ultra-fast, world-class 671B model. Ideal for natural, high-converting B2B outreach at microscopic cost.
+                </p>
+              </div>
+
+              <!-- Web Search Grounding Toggle -->
+              <div class="mt-3 p-3 bg-slate-950/70 border border-slate-800/80 rounded-xl flex items-center justify-between">
+                <div>
+                  <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-white">Live Web Search (openrouter:web_search)</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">Anti-Hallucination</span>
+                  </div>
+                  <p class="text-[11px] text-slate-400 mt-0.5">Allows any selected model (DeepSeek, GPT, Claude) to query live internet indexes when discovering prospects.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer shrink-0 ml-4">
+                  <input type="checkbox" id="cfg-web-search" class="sr-only peer" checked>
+                  <div class="w-10 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SMTP2GO Section -->
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-4">
+          <div class="flex items-center space-x-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            <h3 class="text-sm font-bold text-white">Email Server (SMTP2GO REST API)</h3>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="col-span-2">
+              <label class="block text-xs font-medium text-slate-300 mb-1">SMTP2GO API Key:</label>
+              <input type="password" id="cfg-smtp-key" placeholder="api-..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500 font-mono">
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Sender Name:</label>
+              <input type="text" id="cfg-sender-name" placeholder="e.g. Alex Morgan" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Sender Email (Verified in SMTP2GO):</label>
+              <input type="email" id="cfg-sender-email" placeholder="alex@myagency.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+            </div>
+
+            <div class="col-span-2">
+              <label class="block text-xs font-medium text-slate-300 mb-1">Default Email Subject:</label>
+              <input type="text" id="cfg-email-subject" placeholder="Quick question regarding {company_name}" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Anti-Spam Delay (Seconds between emails):</label>
+              <input type="number" id="cfg-delay-seconds" min="1" max="60" value="5" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">My Service / Offer:</label>
+              <input type="text" id="cfg-my-service" placeholder="Modern web redesign & high-converting lead funnels" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+            </div>
+          </div>
+
+          <div class="pt-2 flex justify-end">
+            <button onclick="testSMTP2GOConnection()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium border border-slate-700 transition">
+              Test SMTP2GO Connection
+            </button>
+          </div>
+        </div>
+
+        </div>
+
+        <!-- Save Button -->
+        <div class="flex justify-end space-x-3">
+          <button onclick="saveAllSettings()" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-brand-500/20 transition">
+            Save All Settings
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ============================================================ -->
+  <!-- MODAL: ADD PROSPECTS (MANUAL / SMART PASTE / CSV) -->
+  <!-- ============================================================ -->
+  <div id="modal-add-prospects" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl flex flex-col space-y-4 max-h-[90vh]">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="text-sm font-bold text-white">Add Prospects to Campaign</h3>
+          <p class="text-xs text-slate-400">Choose your preferred method to add verified leads</p>
+        </div>
+        <button onclick="closeAddProspectsModal()" class="text-slate-400 hover:text-white p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Navigation Tabs inside Modal -->
+      <div class="flex space-x-1 bg-slate-950/80 p-1 rounded-xl border border-slate-800/80 text-xs">
+        <button id="modal-tab-btn-manual" onclick="switchAddProspectsTab('manual')" class="flex-1 py-1.5 rounded-lg font-medium transition bg-brand-600 text-white shadow-sm">
+          ✍️ Manual Lead
+        </button>
+        <button id="modal-tab-btn-paste" onclick="switchAddProspectsTab('paste')" class="flex-1 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white">
+          📋 Smart Paste (Directories/Maps)
+        </button>
+        <button id="modal-tab-btn-csv" onclick="switchAddProspectsTab('csv')" class="flex-1 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white">
+          📁 Import CSV
+        </button>
+      </div>
+
+      <!-- TAB 1: MANUAL ADD -->
+      <div id="modal-tab-manual" class="space-y-3 py-1">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="col-span-2">
+            <label class="block text-[11px] font-medium text-slate-300 mb-1">Company / Business Name *</label>
+            <input type="text" id="manual-name" placeholder="e.g. Apex Dental Studio" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-slate-300 mb-1">City / Location *</label>
+            <input type="text" id="manual-city" placeholder="e.g. Miami, FL" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-slate-300 mb-1">Contact Email *</label>
+            <input type="email" id="manual-email" placeholder="e.g. contact@apexdental.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-slate-300 mb-1">Phone Number (Optional)</label>
+            <input type="text" id="manual-phone" placeholder="e.g. +1 (305) 555-0199" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-slate-300 mb-1">Website URL (Optional)</label>
+            <input type="text" id="manual-website" placeholder="e.g. https://apexdental.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+          </div>
+        </div>
+        <div class="flex justify-end pt-2">
+          <button onclick="submitManualLead()" class="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-brand-500/20 transition">
+            + Add Prospect
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 2: SMART PASTE -->
+      <div id="modal-tab-paste" class="hidden space-y-3 py-1">
+        <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl text-[11px] text-slate-400 space-y-1">
+          <p class="font-medium text-slate-300">💡 100% Anti-Hallucination Regex Parser:</p>
+          <p>Copy & paste text directly from Google Maps, Yelp, YellowPages, LinkedIn, or any directory. The parser will extract real emails, web addresses, phone numbers, and company titles automatically.</p>
+        </div>
+        <textarea id="smart-paste-text" rows="7" placeholder="Paste directory listings, text or email lists here... Example:
+Acme Dental Clinic | Miami, FL | contact@acmedental.com | (305) 555-1234 | www.acmedental.com
+Harbor Real Estate, Austin TX, info@harborrealtysa.com, https://harborrealtysa.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-brand-500 font-mono leading-relaxed"></textarea>
+        <div class="flex justify-between items-center pt-1">
+          <span id="paste-parse-status" class="text-[11px] text-slate-500">Ready to parse text</span>
+          <button onclick="submitSmartPaste()" class="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-brand-500/20 transition flex items-center space-x-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            <span>Extract & Import Leads</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 3: IMPORT CSV -->
+      <div id="modal-tab-csv" class="hidden space-y-4 py-2">
+        <div class="border-2 border-dashed border-slate-700 hover:border-brand-500/60 rounded-2xl p-6 text-center transition cursor-pointer bg-slate-950/40" onclick="triggerImportCSV()">
+          <svg class="w-10 h-10 mx-auto text-brand-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+          <p class="text-xs font-semibold text-white">Click to choose a CSV file or drag & drop here</p>
+          <p class="text-[11px] text-slate-400 mt-1">Columns supported: Company, City, Email, Phone, Website</p>
+        </div>
+        <div class="flex items-center justify-between text-xs text-slate-400">
+          <span>Need a sample template?</span>
+          <button onclick="loadSampleDemoLeads()" class="text-brand-400 hover:underline text-xs">Load Demo Dataset (5 leads)</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL: PREVIEW & EDIT COLD EMAIL -->
+  <!-- ============================================================ -->
+  <div id="preview-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl flex flex-col space-y-4 max-h-[90vh]">
+      
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="text-sm font-bold text-white" id="modal-company-title">Review Outreach Email</h3>
+          <p class="text-xs text-slate-400" id="modal-lead-email">prospect@example.com</p>
+        </div>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-white p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="space-y-3 flex-1 overflow-y-auto">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Subject Line:</label>
+          <input type="text" id="modal-subject" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-medium text-slate-300">Email Content:</label>
+            <!-- View Mode Switcher -->
+            <div class="flex items-center bg-slate-950 p-0.5 rounded-lg border border-slate-800">
+              <button type="button" id="btn-mode-preview" onclick="setEmailModalMode('preview')" class="px-2.5 py-1 text-[11px] font-semibold rounded-md bg-brand-600 text-white shadow transition flex items-center space-x-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                <span>Visual Preview (HTML)</span>
+              </button>
+              <button type="button" id="btn-mode-code" onclick="setEmailModalMode('code')" class="px-2.5 py-1 text-[11px] font-medium rounded-md text-slate-400 hover:text-white transition flex items-center space-x-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                <span>HTML Source Code</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Mode 1: Rendered HTML Preview (Looks like a real email client) -->
+          <div id="modal-html-container" class="w-full min-h-[220px] max-h-[280px] overflow-y-auto bg-slate-950 border border-slate-800 rounded-xl p-4 text-xs text-slate-200 leading-relaxed space-y-2.5 shadow-inner">
+            <div id="modal-html-preview" class="prose prose-invert prose-sm max-w-none text-slate-200 leading-relaxed"></div>
+          </div>
+
+          <!-- Mode 2: HTML Source Code Textarea -->
+          <textarea id="modal-body" rows="10" oninput="syncPreviewFromCode()" class="hidden w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 font-mono focus:outline-none focus:border-brand-500 leading-relaxed"></textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between border-t border-slate-800 pt-3">
+        <button onclick="regenerateCurrentEmail()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-brand-400 rounded-xl text-xs font-medium transition flex items-center space-x-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <span>Regenerate with AI</span>
+        </button>
+
+        <div class="flex space-x-2">
+          <button onclick="closeModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium transition">
+            Save & Close
+          </button>
+          <button onclick="sendSingleCurrentEmail()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-emerald-500/20 transition flex items-center space-x-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            <span>Send Now</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+    <!-- ============================================================ -->
+  <!-- MODAL: QUICK START & USER GUIDE -->
+  <!-- ============================================================ -->
+  <div id="modal-quick-guide" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 shadow-2xl flex flex-col space-y-5 max-h-[90vh] overflow-y-auto">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-brand-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">LeadHunter AI Desk - Quick Start Guide</h3>
+            <p class="text-xs text-slate-400">Launch cold outreach campaigns in 4 simple steps.</p>
+          </div>
+        </div>
+        <button onclick="closeQuickGuideModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Step-by-Step Cards -->
+      <div class="space-y-3.5 text-xs text-slate-300">
+
+        <!-- Step 1 -->
+        <div class="p-3.5 bg-slate-950/70 border border-slate-800 rounded-2xl flex items-start space-x-3">
+          <div class="w-7 h-7 rounded-xl bg-brand-500/10 text-brand-400 border border-brand-500/20 flex items-center justify-center font-bold shrink-0 mt-0.5">1</div>
+          <div class="space-y-1">
+            <h4 class="font-semibold text-white">Configure Your API Keys (Bring Your Own Key)</h4>
+            <p class="text-slate-400">Go to <strong class="text-white">Credentials & Settings</strong>. Enter your free or paid <span class="text-indigo-300">OpenRouter API Key</span> (choose models like DeepSeek V3, Claude, or Llama) and your <span class="text-indigo-300">SMTP2GO API Key</span> with your verified sender email.</p>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="p-3.5 bg-slate-950/70 border border-slate-800 rounded-2xl flex items-start space-x-3">
+          <div class="w-7 h-7 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center font-bold shrink-0 mt-0.5">2</div>
+          <div class="space-y-1">
+            <h4 class="font-semibold text-white">Find or Add Target Prospects</h4>
+            <p class="text-slate-400">Choose any of the 4 methods:</p>
+            <ul class="list-disc list-inside text-slate-400 space-y-0.5 mt-1">
+              <li><strong class="text-slate-200">AI Web Search (Top Bar):</strong> Enter Target Niche, City, lead count, and click <strong class="text-white">Discover</strong>.</li>
+              <li><strong class="text-slate-200">+ Add Prospects:</strong> Add a lead manually, paste raw listings via <strong class="text-white">Smart Paste</strong>, or import any <strong class="text-white">.CSV file</strong>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="p-3.5 bg-slate-950/70 border border-slate-800 rounded-2xl flex items-start space-x-3">
+          <div class="w-7 h-7 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-bold shrink-0 mt-0.5">3</div>
+          <div class="space-y-1">
+            <h4 class="font-semibold text-white">Select Language & Draft AI Outreach</h4>
+            <p class="text-slate-400">In <strong class="text-white">AI Prompt Template</strong>, pick your target language (<span class="text-amber-200">Spanish, English, French, German...</span>). Check the prospects you want and click <strong class="text-brand-400 font-semibold">Draft AI</strong>. Each prospect receives a tailored HTML email.</p>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="p-3.5 bg-slate-950/70 border border-slate-800 rounded-2xl flex items-start space-x-3">
+          <div class="w-7 h-7 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold shrink-0 mt-0.5">4</div>
+          <div class="space-y-1">
+            <h4 class="font-semibold text-white">Review & Send Campaign</h4>
+            <p class="text-slate-400">Click <strong class="text-white">Edit Email</strong> to view the real-time rendered HTML preview or tweak the source code. When satisfied, click <strong class="text-emerald-400 font-semibold">Send Campaign</strong> to dispatch outreach safely via SMTP2GO with anti-spam pacing.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Footer -->
+      <div class="border-t border-slate-800 pt-3 flex items-center justify-between">
+        <button onclick="loadSampleDemoLeads(); closeQuickGuideModal();" class="text-xs text-brand-400 hover:underline">
+          Load Sample Demo Dataset
+        </button>
+        <button onclick="closeQuickGuideModal()" class="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold transition">
+          Got It, Let's Start!
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- JAVASCRIPT CORE & BIDIRECTIONAL WEBVIEW2 MESSAGING -->
+  <!-- ============================================================ -->
+  <script>
+    
+    // ============================================================
+    // LOCAL STORAGE PERSISTENCE & QUICK GUIDE
+    // ============================================================
+    const STORAGE_KEY_LEADS = 'leadhunter_saved_leads';
+
+    // ============================================================
+    // PAGINATION & HIGH-VOLUME SCALABILITY
+    // ============================================================
+    let paginationState = {
+      currentPage: 1,
+      pageSize: 25
+    };
+
+    function changePageSize(newSize) {
+      paginationState.pageSize = parseInt(newSize) || 25;
+      paginationState.currentPage = 1;
+      renderLeadsTable();
+    }
+
+    function goToPrevPage() {
+      if (paginationState.currentPage > 1) {
+        paginationState.currentPage--;
+        renderLeadsTable();
+      }
+    }
+
+    function goToNextPage() {
+      const totalPages = Math.ceil(appState.leads.length / paginationState.pageSize) || 1;
+      if (paginationState.currentPage < totalPages) {
+        paginationState.currentPage++;
+        renderLeadsTable();
+      }
+    }
+
+
+    function saveLeadsToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY_LEADS, JSON.stringify(appState.leads));
+      } catch (e) {
+        console.warn('Could not save leads to localStorage:', e);
+      }
+    }
+
+    function loadLeadsFromStorage() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY_LEADS);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            return parsed;
+          }
+        }
+      } catch (e) {
+        console.warn('Could not load leads from localStorage:', e);
+      }
+      return null;
+    }
+
+    function openQuickGuideModal() {
+      const modal = document.getElementById('modal-quick-guide');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+      }
+    }
+
+    function closeQuickGuideModal() {
+      const modal = document.getElementById('modal-quick-guide');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+      }
+    }
+
+    let appState = {
+      leads: [],
+      currentLeadIndex: -1,
+      license: {
+        isRegistered: false,
+        regUser: '',
+        daysLeft: ''
+      },
+      config: {
+        openRouterKey: '',
+        openRouterModel: 'deepseek/deepseek-chat',
+        smtpKey: '',
+        senderName: '',
+        senderEmail: '',
+        emailSubject: 'Quick question regarding {company_name}',
+        delaySeconds: 5,
+        myService: 'Modern web redesign & high-converting lead funnels',
+        emailLanguage: 'English'
+      },
+      prompts: {
+        language: 'English',
+        system: 'You are a world-class B2B sales copywriter specializing in natural, highly personalized, and direct cold outreach. Write strictly in {language}. Structure the email using clean, modern HTML tags (<p>, <br>, <a>, <strong>). Never sound robotic or generic.',
+        user: 'Write a short, highly persuasive cold outreach email in {language} (under 95 words) to {company_name} located in {city}. My name is {my_name} and we help local businesses with {my_service}. Use clean HTML paragraphs (<p>), bold highlights (<strong>) and a professional signature with line breaks (<br>). Return ONLY clean HTML without markdown codeblocks.'
+      }
+    };
+
+        // Curated offline fallback models (alphabetically sorted)
+    const fallbackOpenRouterModels = [
+      { id: 'anthropic/claude-3-haiku', name: 'Anthropic: Claude 3 Haiku', context_length: 200000, description: 'Fast, compact model designed for near-instant responsiveness.', pricing: { prompt: 0.00000025, completion: 0.00000125 } },
+      { id: 'anthropic/claude-3.5-haiku', name: 'Anthropic: Claude 3.5 Haiku', context_length: 200000, description: 'Next-generation rapid model with superior writing quality.', pricing: { prompt: 0.0000008, completion: 0.000004 } },
+      { id: 'anthropic/claude-3.5-sonnet', name: 'Anthropic: Claude 3.5 Sonnet', context_length: 200000, description: 'Highest nuance, persuasion, and human-like natural sales copywriting.', pricing: { prompt: 0.000003, completion: 0.000015 } },
+      { id: 'deepseek/deepseek-chat', name: 'DeepSeek: DeepSeek V3', context_length: 128000, description: 'Ultra-fast, world-class 671B model. 1,000 cold emails cost less than $0.07.', pricing: { prompt: 0.00000014, completion: 0.00000028 } },
+      { id: 'deepseek/deepseek-r1', name: 'DeepSeek: DeepSeek R1 (Reasoning)', context_length: 128000, description: 'State-of-the-art open reasoning model comparable to OpenAI o1.', pricing: { prompt: 0.00000055, completion: 0.00000219 } },
+      { id: 'google/gemini-2.0-flash-exp:free', name: 'Google: Gemini 2.0 Flash (Free)', context_length: 1048576, description: 'Next-gen experimental multimodal model with massive 1M context. 100% Free.', pricing: { prompt: 0, completion: 0 } },
+      { id: 'google/gemini-flash-1.5', name: 'Google: Gemini Flash 1.5', context_length: 1048576, description: 'Lightweight, high-frequency, cost-efficient model with 1M context.', pricing: { prompt: 0.000000075, completion: 0.0000003 } },
+      { id: 'meta-llama/llama-3.1-8b-instruct:free', name: 'Meta: Llama 3.1 8B (Free)', context_length: 131072, description: 'High-speed open model suitable for simple outreach tasks. 100% Free.', pricing: { prompt: 0, completion: 0 } },
+      { id: 'meta-llama/llama-3.3-70b-instruct', name: 'Meta: Llama 3.3 70B Instruct', context_length: 131072, description: 'Flagship 70B model delivering GPT-4 class quality at a fraction of the cost.', pricing: { prompt: 0.00000012, completion: 0.0000003 } },
+      { id: 'mistralai/mistral-7b-instruct:free', name: 'Mistral: Mistral 7B (Free)', context_length: 32768, description: 'Fast, efficient 7B foundation model. 100% Free.', pricing: { prompt: 0, completion: 0 } },
+      { id: 'mistralai/mistral-small-24b-instruct-2501', name: 'Mistral: Mistral Small 3', context_length: 32768, description: 'New 24B parameter model optimized for enterprise language tasks.', pricing: { prompt: 0.00000007, completion: 0.00000014 } },
+      { id: 'openai/gpt-4o', name: 'OpenAI: GPT-4o', context_length: 128000, description: 'Flagship omni model from OpenAI with advanced intelligence.', pricing: { prompt: 0.0000025, completion: 0.00001 } },
+      { id: 'openai/gpt-4o-mini', name: 'OpenAI: GPT-4o Mini', context_length: 128000, description: 'Fast, highly affordable small model for focused text generation.', pricing: { prompt: 0.00000015, completion: 0.0000006 } },
+      { id: 'qwen/qwen-2.5-72b-instruct', name: 'Qwen: Qwen 2.5 72B Instruct', context_length: 131072, description: 'Powerful generalist model with leading benchmark scores across languages.', pricing: { prompt: 0.00000023, completion: 0.0000004 } }
+    ];
+
+    let openRouterModels = [...fallbackOpenRouterModels];
+
+    async function fetchOpenRouterModels(forceRefresh = false) {
+      const statusEl = document.getElementById('model-fetch-status');
+      if (statusEl) statusEl.innerText = 'Syncing catalogue...';
+      try {
+        const res = await fetch('https://openrouter.ai/api/v1/models');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const json = await res.json();
+        if (json.data && Array.isArray(json.data) && json.data.length > 0) {
+          openRouterModels = json.data.map(m => ({
+            id: m.id,
+            name: m.name || m.id,
+            context_length: m.context_length || 0,
+            description: m.description || '',
+            pricing: {
+              prompt: parseFloat(m.pricing?.prompt || 0),
+              completion: parseFloat(m.pricing?.completion || 0)
+            }
+          }));
+          openRouterModels.sort((a, b) => a.name.localeCompare(b.name));
+          if (statusEl) statusEl.innerText = `${openRouterModels.length} models available`;
+        }
+      } catch (err) {
+        console.warn('Could not fetch OpenRouter models:', err);
+        if (statusEl) statusEl.innerText = `${openRouterModels.length} models (offline)`;
+      }
+      populateModelDropdown();
+    }
+
+    function populateModelDropdown(filteredList = null) {
+      const select = document.getElementById('cfg-openrouter-model');
+      if (!select) return;
+      const list = filteredList || openRouterModels;
+      const currentVal = appState.config.openRouterModel || 'deepseek/deepseek-chat';
+      
+      select.innerHTML = '';
+      list.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        const isFree = m.pricing.prompt === 0 && m.pricing.completion === 0;
+        const priceTag = isFree ? '[FREE]' : `$${(m.pricing.prompt * 1000000).toFixed(2)}/1M`;
+        opt.textContent = `${m.name} (${priceTag})`;
+        select.appendChild(opt);
+      });
+
+      if (currentVal && list.some(m => m.id === currentVal)) {
+        select.value = currentVal;
+      } else if (select.options.length > 0) {
+        select.selectedIndex = 0;
+      }
+      updateModelInfoCard(select.value);
+    }
+
+    function filterModels(query) {
+      const q = (query || '').toLowerCase().trim();
+      if (!q) {
+        populateModelDropdown();
+        return;
+      }
+      const filtered = openRouterModels.filter(m => {
+        if (q === 'free') {
+          return m.pricing.prompt === 0 && m.pricing.completion === 0;
+        }
+        return m.name.toLowerCase().includes(q) || m.id.toLowerCase().includes(q) || m.description.toLowerCase().includes(q);
+      });
+      populateModelDropdown(filtered);
+    }
+
+    function onModelSelectChange(modelId) {
+      appState.config.openRouterModel = modelId;
+      updateModelInfoCard(modelId);
+    }
+
+    function updateModelInfoCard(modelId) {
+      const model = openRouterModels.find(m => m.id === modelId) || fallbackOpenRouterModels.find(m => m.id === modelId);
+      if (!model) return;
+
+      const idEl = document.getElementById('model-info-id');
+      const badgeEl = document.getElementById('model-info-badge');
+      const freeEl = document.getElementById('model-info-free');
+      const contextEl = document.getElementById('model-info-context');
+      const inCostEl = document.getElementById('model-info-input-cost');
+      const outCostEl = document.getElementById('model-info-output-cost');
+      const emailCostEl = document.getElementById('model-info-email-cost');
+      const descEl = document.getElementById('model-info-desc');
+
+      if (idEl) idEl.innerText = model.id;
+      
+      const provider = model.id.split('/')[0] || 'AI';
+      if (badgeEl) badgeEl.innerText = provider.charAt(0).toUpperCase() + provider.slice(1);
+
+      const isFree = model.pricing.prompt === 0 && model.pricing.completion === 0;
+      if (freeEl) {
+        if (isFree) {
+          freeEl.classList.remove('hidden');
+        } else {
+          freeEl.classList.add('hidden');
+        }
+      }
+
+      if (contextEl) {
+        const ctx = model.context_length || 0;
+        if (ctx >= 1000000) {
+          contextEl.innerText = `${(ctx / 1000000).toFixed(1)}M context`;
+        } else if (ctx >= 1000) {
+          contextEl.innerText = `${Math.round(ctx / 1000)}K context`;
+        } else {
+          contextEl.innerText = `${ctx} context`;
+        }
+      }
+
+      const prompt1M = model.pricing.prompt * 1000000;
+      const comp1M = model.pricing.completion * 1000000;
+      const cost1000 = (200 * model.pricing.prompt + 150 * model.pricing.completion) * 1000;
+
+      if (inCostEl) inCostEl.innerText = isFree ? '$0.00' : `$${prompt1M.toFixed(2)}`;
+      if (outCostEl) outCostEl.innerText = isFree ? '$0.00' : `$${comp1M.toFixed(2)}`;
+      if (emailCostEl) {
+        if (isFree) {
+          emailCostEl.innerText = '$0.00 (FREE)';
+          emailCostEl.className = 'font-mono text-emerald-400 font-bold';
+        } else {
+          emailCostEl.innerText = `~$${cost1000 < 0.01 ? '<0.01' : cost1000.toFixed(2)}`;
+          emailCostEl.className = 'font-mono text-emerald-400 font-semibold';
+        }
+      }
+
+      if (descEl) {
+        descEl.innerText = model.description || 'Optimized for conversational, direct-response cold outreach copywriting.';
+      }
+    }
+
+    function sendToVN(action, payload) {
+      if (window.chrome && window.chrome.webview) {
+        window.chrome.webview.postMessage({ action: action, payload: payload });
+      } else {
+        console.log('[LeadHunter Desk -> NeoScript]', action, payload);
+      }
+    }
+
+    if (window.chrome && window.chrome.webview) {
+      window.chrome.webview.addEventListener('message', function(event) {
+        if (typeof event.data === 'string' && event.data.startsWith('CSV_IMPORT:')) {
+          const csvText = event.data.substring(11);
+          parseCSVText(csvText);
+          return;
+        }
+        if (typeof event.data === 'string' && event.data.startsWith('DISCOVER_SUCCESS:')) {
+          const rawText = event.data.substring(17);
+          handleDiscoveredLeadsResponse(rawText);
+          return;
+        }
+        if (typeof event.data === 'string' && event.data.startsWith('DISCOVER_ERROR:')) {
+          setDiscoverLoading(false);
+          alert('Lead Discovery Error: ' + event.data.substring(15));
+          return;
+        }
+        try {
+          const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+          handleIncomingVNMessage(data);
+        } catch (err) {
+          console.error('Error parsing VisualNEO message:', err, event.data);
+        }
+      });
+    }
+
+    function handleIncomingVNMessage(data) {
+      switch (data.action) {
+        case 'LOAD_LEADS':
+          appState.leads = data.payload || [];
+          renderLeadsTable();
+          updateStats();
+          break;
+        case 'UPDATE_LEAD':
+          if (data.payload && typeof data.payload.index === 'number') {
+            appState.leads[data.payload.index] = data.payload.lead;
+            renderLeadsTable();
+            updateStats();
+          }
+          break;
+        case 'UPDATE_PROGRESS':
+          updateProgressUI(data.payload.percent, data.payload.status);
+          break;
+        case 'LOAD_CONFIG':
+          if (data.payload) {
+            appState.config = Object.assign(appState.config, data.payload);
+            if (data.payload.emailLanguage) {
+              appState.prompts.language = data.payload.emailLanguage;
+            }
+            if (data.payload.isRegistered !== undefined) {
+              appState.license.isRegistered = data.payload.isRegistered;
+              appState.license.regUser = data.payload.regUser || '';
+              appState.license.daysLeft = data.payload.daysLeft || '';
+              updateLicenseUI();
+            }
+            populateConfigUI();
+          }
+          break;
+        case 'UPDATE_LICENSE_STATUS':
+          if (data.payload) {
+            appState.license.isRegistered = data.payload.isRegistered;
+            appState.license.regUser = data.payload.regUser || '';
+            appState.license.daysLeft = data.payload.daysLeft || '';
+            updateLicenseUI();
+            const isRegNow = String(data.payload.isRegistered).trim().toLowerCase() === 'true';
+            if (isRegNow) {
+              alert('License successfully activated! Thank you for purchasing LeadHunter AI Desk.');
+            }
+          }
+          break;
+        case 'TOAST':
+          alert(data.payload.message);
+          break;
+      }
+    }
+
+    function switchTab(tabId) {
+      const tabs = ['leads', 'prompt', 'settings'];
+      for (let i = 0; i < tabs.length; i++) {
+        const t = tabs[i];
+        const el = document.getElementById('tab-' + t);
+        const btn = document.getElementById('tab-btn-' + t);
+        if (t === tabId) {
+          if (el) {
+            el.style.display = 'flex';
+            el.classList.remove('hidden');
+          }
+          if (btn) {
+            btn.className = 'px-4 py-1.5 rounded-lg text-xs font-medium transition-all bg-brand-600 text-white shadow-sm';
+          }
+        } else {
+          if (el) {
+            el.style.display = 'none';
+            el.classList.add('hidden');
+          }
+          if (btn) {
+            btn.className = 'px-4 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-white';
+          }
+        }
+      }
+    }
+
+    function toggleLeadFinderDrawer(forceState) {
+      const drawer = document.getElementById('lead-finder-drawer');
+      const arrow = document.getElementById('arrow-toggle-finder');
+      if (!drawer) return;
+
+      const isHidden = drawer.classList.contains('hidden');
+      const shouldOpen = typeof forceState === 'boolean' ? forceState : isHidden;
+
+      if (shouldOpen) {
+        drawer.classList.remove('hidden');
+        drawer.style.display = 'block';
+        if (arrow) arrow.style.transform = 'rotate(180deg)';
+        setTimeout(() => {
+          const inp = document.getElementById('input-niche');
+          if (inp) inp.focus();
+        }, 100);
+      } else {
+        drawer.classList.add('hidden');
+        drawer.style.display = 'none';
+        if (arrow) arrow.style.transform = 'rotate(0deg)';
+      }
+    }
+
+    function setLeadsFilter(status) {
+      appState.filter = status || 'all';
+      paginationState.currentPage = 1;
+      const statuses = ['all', 'pending', 'ready', 'sent'];
+      statuses.forEach(s => {
+        const btn = document.getElementById('filter-btn-' + s);
+        if (btn) {
+          if (s === appState.filter) {
+            btn.className = 'px-2.5 py-1 rounded-lg font-semibold transition bg-brand-600 text-white shadow-sm';
+          } else {
+            btn.className = 'px-2.5 py-1 rounded-lg font-medium transition text-slate-400 hover:text-white';
+          }
+        }
+      });
+      renderLeadsTable();
+    }
+
+    function setLeadsSearchQuery(q) {
+      appState.searchQuery = q || '';
+      paginationState.currentPage = 1;
+      renderLeadsTable();
+    }
+
+    function resetLeadsFilter() {
+      appState.filter = 'all';
+      appState.searchQuery = '';
+      const inp = document.getElementById('filter-search-input');
+      if (inp) inp.value = '';
+      setLeadsFilter('all');
+    }
+
+    function renderLeadsTable() {
+      const tbody = document.getElementById('leads-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const totalLeads = appState.leads.length;
+
+      // Toggle High-Volume Safety Banner
+      const banner = document.getElementById('high-volume-banner');
+      const bannerText = document.getElementById('high-volume-text');
+      if (banner) {
+        if (totalLeads >= 150) {
+          banner.classList.remove('hidden');
+          if (bannerText) bannerText.innerText = `You have ${totalLeads} prospects loaded. Pagination is active for instant UI responsiveness.`;
+        } else {
+          banner.classList.add('hidden');
+        }
+      }
+
+      // Empty State: No leads at all
+      if (totalLeads === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="py-16 text-center">
+              <div class="max-w-xl mx-auto space-y-4 px-4">
+                <div class="w-12 h-12 rounded-2xl bg-slate-800/90 border border-slate-700/80 mx-auto flex items-center justify-center text-brand-400 shadow-lg">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                </div>
+                <div>
+                  <p class="text-base font-bold text-white">Your Prospect List is Empty</p>
+                  <p class="text-xs text-slate-400 mt-1">Start your cold outreach campaign by selecting how you would like to source prospects:</p>
+                </div>
+                <div class="grid grid-cols-3 gap-3 text-left pt-2">
+                  <button type="button" onclick="toggleLeadFinderDrawer(true)" class="p-3.5 bg-slate-900/90 hover:bg-slate-800 border border-indigo-500/25 hover:border-indigo-500/50 rounded-xl transition group flex flex-col space-y-1.5 shadow-sm cursor-pointer">
+                    <div class="w-7 h-7 rounded-lg bg-indigo-500/15 text-indigo-400 flex items-center justify-center">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </div>
+                    <p class="text-xs font-semibold text-white group-hover:text-indigo-300">Discover with AI</p>
+                    <p class="text-[11px] text-slate-400 leading-snug">Extract local business leads by niche and city</p>
+                  </button>
+                  <button type="button" onclick="triggerImportCSV()" class="p-3.5 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-xl transition group flex flex-col space-y-1.5 shadow-sm cursor-pointer">
+                    <div class="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    </div>
+                    <p class="text-xs font-semibold text-white group-hover:text-emerald-300">Import CSV</p>
+                    <p class="text-[11px] text-slate-400 leading-snug">Load your CSV spreadsheet or CRM export file</p>
+                  </button>
+                  <button type="button" onclick="loadSampleDemoLeads()" class="p-3.5 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-xl transition group flex flex-col space-y-1.5 shadow-sm cursor-pointer">
+                    <div class="w-7 h-7 rounded-lg bg-brand-500/15 text-brand-400 flex items-center justify-center">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    </div>
+                    <p class="text-xs font-semibold text-white group-hover:text-brand-300">Demo Leads</p>
+                    <p class="text-[11px] text-slate-400 leading-snug">Test with 3 pre-built verified prospect samples</p>
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        `;
+        const sumEl = document.getElementById('table-summary-text');
+        if (sumEl) sumEl.innerText = 'Showing 0 prospects';
+        const pageEl = document.getElementById('pagination-info');
+        if (pageEl) pageEl.innerText = 'Page 1 of 1';
+        updateStats();
+        return;
+      }
+
+      // Filter leads by status and search query
+      let filtered = appState.leads.map((l, idx) => ({ ...l, originalIndex: idx }));
+
+      if (appState.filter === 'pending') {
+        filtered = filtered.filter(l => l.status === 'pending');
+      } else if (appState.filter === 'ready') {
+        filtered = filtered.filter(l => l.status === 'ai_ready');
+      } else if (appState.filter === 'sent') {
+        filtered = filtered.filter(l => l.status === 'sent');
+      }
+
+      if (appState.searchQuery && appState.searchQuery.trim() !== '') {
+        const q = appState.searchQuery.trim().toLowerCase();
+        filtered = filtered.filter(l => 
+          (l.name && l.name.toLowerCase().includes(q)) ||
+          (l.city && l.city.toLowerCase().includes(q)) ||
+          (l.email && l.email.toLowerCase().includes(q)) ||
+          (l.website && l.website.toLowerCase().includes(q))
+        );
+      }
+
+      // If filtered result is empty
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="py-12 text-center text-slate-400 text-xs">
+              <p class="font-medium text-slate-300">No prospects match your current search or filter.</p>
+              <button type="button" onclick="resetLeadsFilter()" class="mt-2 text-brand-400 hover:underline text-xs font-semibold cursor-pointer">Clear filters</button>
+            </td>
+          </tr>
+        `;
+        const sumEl = document.getElementById('table-summary-text');
+        if (sumEl) sumEl.innerText = `0 matches (filtered from ${totalLeads})`;
+        updateStats();
+        return;
+      }
+
+      const pageSize = paginationState.pageSize;
+      const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+      if (paginationState.currentPage > totalPages) {
+        paginationState.currentPage = totalPages;
+      }
+      if (paginationState.currentPage < 1) {
+        paginationState.currentPage = 1;
+      }
+
+      const startIndex = (paginationState.currentPage - 1) * pageSize;
+      const endIndex = Math.min(startIndex + pageSize, filtered.length);
+      const pageLeads = filtered.slice(startIndex, endIndex);
+
+      pageLeads.forEach((lead) => {
+        const origIdx = lead.originalIndex;
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/40 transition group';
+        
+        let statusBadge = '';
+        if (lead.status === 'sent') {
+          statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Sent via SMTP</span>';
+        } else if (lead.status === 'ai_ready') {
+          statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">Email Ready</span>';
+        } else if (lead.status === 'generating') {
+          statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 animate-pulse">Drafting AI...</span>';
+        } else if (lead.status === 'sending') {
+          statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-500/10 text-brand-400 border border-brand-500/20 animate-pulse">Sending...</span>';
+        } else if (lead.status === 'error') {
+          statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">Delivery Error</span>';
+        } else {
+          statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-800 text-slate-400">Pending</span>';
+        }
+
+        tr.innerHTML = `
+          <td class="py-3 px-4 text-center">
+            <input type="checkbox" data-index="${origIdx}" class="lead-checkbox rounded bg-slate-800 border-slate-700 text-brand-600 focus:ring-0" ${lead.selected ? 'checked' : ''} onchange="toggleSelectLead(${origIdx}, this.checked)">
+          </td>
+          <td class="py-3 px-4 font-medium text-white">${escapeHtml(lead.name || 'Unnamed')}</td>
+          <td class="py-3 px-4 text-slate-400">${escapeHtml(lead.city || 'Unknown')}</td>
+          <td class="py-3 px-4 text-slate-300 font-mono text-[11px]">${escapeHtml(lead.email || '—')}</td>
+          <td class="py-3 px-4 text-slate-400">
+            ${lead.website ? `<a href="${lead.website}" target="_blank" class="text-brand-400 hover:underline mr-2 text-[11px]">Website</a>` : ''}
+            <span class="text-[11px]">${escapeHtml(lead.phone || '')}</span>
+          </td>
+          <td class="py-3 px-4">${statusBadge}</td>
+          <td class="py-3 px-4 text-right space-x-1.5">
+            <button onclick="openPreviewModal(${origIdx})" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] transition">
+              ${lead.email_body ? 'Edit Email' : 'View'}
+            </button>
+            <button onclick="deleteLead(${origIdx})" class="p-1 rounded text-slate-500 hover:text-rose-400 transition" title="Delete">
+              <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Update Pagination Indicators
+      const summaryEl = document.getElementById('table-summary-text');
+      if (summaryEl) {
+        if (filtered.length === totalLeads) {
+          summaryEl.innerText = `Showing ${startIndex + 1}–${endIndex} of ${totalLeads} prospects`;
+        } else {
+          summaryEl.innerText = `Showing ${startIndex + 1}–${endIndex} of ${filtered.length} matches (filtered from ${totalLeads})`;
+        }
+      }
+      const pageInfoEl = document.getElementById('pagination-info');
+      if (pageInfoEl) {
+        pageInfoEl.innerText = `Page ${paginationState.currentPage} of ${totalPages}`;
+      }
+      const btnPrev = document.getElementById('btn-prev-page');
+      const btnNext = document.getElementById('btn-next-page');
+      if (btnPrev) btnPrev.disabled = (paginationState.currentPage <= 1);
+      if (btnNext) btnNext.disabled = (paginationState.currentPage >= totalPages);
+
+      updateStats();
+    }
+
+    function toggleSelectAll(masterCheckbox) {
+      const isChecked = masterCheckbox.checked;
+      appState.leads.forEach(l => l.selected = isChecked);
+      document.querySelectorAll('.lead-checkbox').forEach(cb => cb.checked = isChecked);
+      updateStats();
+    }
+
+    function toggleSelectLead(index, isChecked) {
+      if (appState.leads[index]) {
+        appState.leads[index].selected = isChecked;
+      }
+      updateStats();
+    }
+
+    function deleteLead(index) {
+      appState.leads.splice(index, 1);
+      renderLeadsTable();
+      saveLeadsToStorage();
+      sendToVN('SYNC_LEADS', appState.leads);
+    }
+
+    function clearAllLeads() {
+      if (confirm('Clear the entire prospects list?')) {
+        appState.leads = [];
+        renderLeadsTable();
+        saveLeadsToStorage();
+        sendToVN('SYNC_LEADS', []);
+      }
+    }
+
+    function updateStats() {
+      const total = appState.leads.length;
+      const pending = appState.leads.filter(l => l.status === 'pending').length;
+      const ready = appState.leads.filter(l => l.status === 'ai_ready').length;
+      const sent = appState.leads.filter(l => l.status === 'sent').length;
+      const generated = ready + sent;
+      const rate = sent > 0 ? Math.round((sent / total) * 100) + '%' : '100%';
+
+      const elTotal = document.getElementById('stat-total');
+      const elGen = document.getElementById('stat-generated');
+      const elSent = document.getElementById('stat-sent');
+      const elRate = document.getElementById('stat-rate');
+      if (elTotal) elTotal.innerText = total;
+      if (elGen) elGen.innerText = generated;
+      if (elSent) elSent.innerText = sent;
+      if (elRate) elRate.innerText = rate;
+
+      // Filter counters
+      const cntAll = document.getElementById('filter-count-all');
+      const cntPending = document.getElementById('filter-count-pending');
+      const cntReady = document.getElementById('filter-count-ready');
+      const cntSent = document.getElementById('filter-count-sent');
+      if (cntAll) cntAll.innerText = total;
+      if (cntPending) cntPending.innerText = pending;
+      if (cntReady) cntReady.innerText = ready;
+      if (cntSent) cntSent.innerText = sent;
+
+      // Selection badge & action button counts
+      const selectedCount = appState.leads.filter(l => l.selected).length;
+      const selectionPill = document.getElementById('selection-pill');
+      const selectedCountBadge = document.getElementById('selected-count-badge');
+      if (selectionPill && selectedCountBadge) {
+        if (selectedCount > 0) {
+          selectionPill.classList.remove('hidden');
+          selectedCountBadge.innerText = selectedCount;
+        } else {
+          selectionPill.classList.add('hidden');
+        }
+      }
+
+      const labelDraft = document.getElementById('label-draft-ai');
+      const labelSend = document.getElementById('label-send-smtp');
+      if (labelDraft) {
+        labelDraft.innerText = selectedCount > 0 ? `Draft AI (${selectedCount})` : 'Draft AI';
+      }
+      if (labelSend) {
+        const readySelected = appState.leads.filter(l => l.selected && l.status === 'ai_ready').length;
+        labelSend.innerText = readySelected > 0 ? `Send Campaign (${readySelected})` : (ready > 0 ? `Send Campaign (${ready})` : 'Send Campaign');
+      }
+    }
+
+    function updateProgressUI(percent, statusText) {
+      const container = document.getElementById('progress-bar-container');
+      if (percent >= 0 && percent < 100) {
+        container.classList.remove('hidden');
+        document.getElementById('progress-bar-fill').style.width = percent + '%';
+        document.getElementById('progress-percent-label').innerText = percent + '%';
+        document.getElementById('progress-status-label').innerText = statusText || 'Processing...';
+      } else {
+        container.classList.add('hidden');
+      }
+    }
+
+    let currentModalMode = 'preview';
+
+    function setEmailModalMode(mode) {
+      currentModalMode = mode;
+      const btnPrev = document.getElementById('btn-mode-preview');
+      const btnCode = document.getElementById('btn-mode-code');
+      const containerPrev = document.getElementById('modal-html-container');
+      const textCode = document.getElementById('modal-body');
+
+      if (mode === 'preview') {
+        syncPreviewFromCode();
+        if (containerPrev) containerPrev.classList.remove('hidden');
+        if (textCode) textCode.classList.add('hidden');
+        if (btnPrev) {
+          btnPrev.className = 'px-2.5 py-1 text-[11px] font-semibold rounded-md bg-brand-600 text-white shadow transition flex items-center space-x-1';
+        }
+        if (btnCode) {
+          btnCode.className = 'px-2.5 py-1 text-[11px] font-medium rounded-md text-slate-400 hover:text-white transition flex items-center space-x-1';
+        }
+      } else {
+        if (containerPrev) containerPrev.classList.add('hidden');
+        if (textCode) textCode.classList.remove('hidden');
+        if (btnCode) {
+          btnCode.className = 'px-2.5 py-1 text-[11px] font-semibold rounded-md bg-brand-600 text-white shadow transition flex items-center space-x-1';
+        }
+        if (btnPrev) {
+          btnPrev.className = 'px-2.5 py-1 text-[11px] font-medium rounded-md text-slate-400 hover:text-white transition flex items-center space-x-1';
+        }
+      }
+    }
+
+    function syncPreviewFromCode() {
+      const code = document.getElementById('modal-body').value || '';
+      const previewEl = document.getElementById('modal-html-preview');
+      if (previewEl) {
+        // If content is plain text without html tags, format paragraphs nicely
+        if (!code.includes('<p>') && !code.includes('<br>')) {
+          previewEl.innerHTML = code.split(/\n{2,}/).map(para => `<p class="mb-2 leading-relaxed">${escapeHtml(para).replace(/\n/g, '<br>')}</p>`).join('');
+        } else {
+          previewEl.innerHTML = code;
+        }
+      }
+    }
+
+    function onLanguageChange(val) {
+      appState.config.emailLanguage = val;
+      appState.prompts.language = val;
+    }
+
+    function openPreviewModal(index) {
+      appState.currentLeadIndex = index;
+      const lead = appState.leads[index];
+      if (!lead) return;
+
+      document.getElementById('modal-company-title').innerText = lead.name || 'Prospect';
+      document.getElementById('modal-lead-email').innerText = lead.email ? `To: ${lead.email}` : 'No email address registered';
+      document.getElementById('modal-subject').value = lead.email_subject || (appState.config.emailSubject || '').replace('{company_name}', lead.name).replace('{city}', lead.city);
+      
+      const bodyContent = lead.email_body || '<p>Click <strong>"Regenerate with AI"</strong> to draft a personalized, high-converting HTML outreach email for this company.</p>';
+      document.getElementById('modal-body').value = bodyContent;
+      syncPreviewFromCode();
+      setEmailModalMode('preview');
+
+      document.getElementById('preview-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      const index = appState.currentLeadIndex;
+      if (index >= 0 && appState.leads[index]) {
+        appState.leads[index].email_subject = document.getElementById('modal-subject').value;
+        appState.leads[index].email_body = document.getElementById('modal-body').value;
+        if (appState.leads[index].status === 'pending' && appState.leads[index].email_body.length > 20) {
+          appState.leads[index].status = 'ai_ready';
+        }
+        renderLeadsTable();
+        updateStats();
+        saveLeadsToStorage(); sendToVN('SYNC_LEADS', appState.leads);
+      }
+      document.getElementById('preview-modal').classList.add('hidden');
+    }
+
+    function regenerateCurrentEmail() {
+      const index = appState.currentLeadIndex;
+      if (index >= 0) {
+        sendToVN('REGENERATE_SINGLE_AI', { index: index, lead: appState.leads[index] });
+        closeModal();
+      }
+    }
+
+    function sendSingleCurrentEmail() {
+      const index = appState.currentLeadIndex;
+      if (index >= 0) {
+        closeModal();
+        sendToVN('SEND_SINGLE_EMAIL', { index: index, lead: appState.leads[index] });
+      }
+    }
+
+    function triggerSearchLeads() {
+      const niche = document.getElementById('input-niche').value.trim();
+      const location = document.getElementById('input-location').value.trim();
+      if (!niche && !location) {
+        alert('Please enter a target niche or location to search.');
+        return;
+      }
+      sendToVN('SEARCH_LEADS', { niche: niche, location: location });
+      const cleanNiche = niche || 'Business';
+      const cleanLoc = location || 'Metropolitan Area';
+      const cleanSlug = cleanNiche.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const locSlug = cleanLoc.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const newLeads = [
+        { name: `${cleanLoc} ${cleanNiche} Specialists`, city: cleanLoc, email: `info@${cleanSlug}${locSlug}.com`, phone: "+1 (555) 234-5678", website: `https://www.${cleanSlug}-${locSlug}.com`, status: "pending", selected: true },
+        { name: `Premier ${cleanNiche} Group`, city: cleanLoc, email: `contact@premier${cleanSlug}.com`, phone: "+1 (555) 876-5432", website: `https://www.premier${cleanSlug}.com`, status: "pending", selected: true },
+        { name: `Apex ${cleanNiche} Studio`, city: cleanLoc, email: `hello@apex${cleanSlug}.org`, phone: "+1 (555) 345-9876", website: `https://apex${cleanSlug}.org`, status: "pending", selected: true }
+      ];
+      appState.leads = [...newLeads, ...appState.leads];
+      renderLeadsTable();
+      updateStats();
+    }
+
+    
+    // ============================================================
+    // MODAL ADD PROSPECTS LOGIC
+    // ============================================================
+    function openAddProspectsModal(tab = 'manual') {
+      const modal = document.getElementById('modal-add-prospects');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        switchAddProspectsTab(tab);
+      }
+    }
+
+    function closeAddProspectsModal() {
+      const modal = document.getElementById('modal-add-prospects');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+      }
+    }
+
+    function switchAddProspectsTab(tabId) {
+      const tabs = ['manual', 'paste', 'csv'];
+      tabs.forEach(t => {
+        const el = document.getElementById('modal-tab-' + t);
+        const btn = document.getElementById('modal-tab-btn-' + t);
+        if (t === tabId) {
+          if (el) {
+            el.style.display = 'block';
+            el.classList.remove('hidden');
+          }
+          if (btn) {
+            btn.className = 'flex-1 py-1.5 rounded-lg font-medium transition bg-brand-600 text-white shadow-sm';
+          }
+        } else {
+          if (el) {
+            el.style.display = 'none';
+            el.classList.add('hidden');
+          }
+          if (btn) {
+            btn.className = 'flex-1 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white';
+          }
+        }
+      });
+    }
+
+    function submitManualLead() {
+      const name = document.getElementById('manual-name').value.trim();
+      const city = document.getElementById('manual-city').value.trim();
+      const email = document.getElementById('manual-email').value.trim();
+      const phone = document.getElementById('manual-phone').value.trim();
+      const website = document.getElementById('manual-website').value.trim();
+
+      if (!name || !city || !email) {
+        alert('Please fill in at least Company Name, City, and Contact Email.');
+        return;
+      }
+
+      const newLead = {
+        name: name,
+        city: city,
+        email: email,
+        phone: phone || '',
+        website: website || '',
+        status: 'pending',
+        selected: true
+      };
+
+      appState.leads.unshift(newLead);
+      renderLeadsTable();
+      updateStats();
+      saveLeadsToStorage(); sendToVN('SYNC_LEADS', appState.leads);
+
+      // Clear fields and close
+      document.getElementById('manual-name').value = '';
+      document.getElementById('manual-city').value = '';
+      document.getElementById('manual-email').value = '';
+      document.getElementById('manual-phone').value = '';
+      document.getElementById('manual-website').value = '';
+      closeAddProspectsModal();
+    }
+
+    function submitSmartPaste() {
+      const text = document.getElementById('smart-paste-text').value.trim();
+      if (!text) {
+        alert('Please paste some text or directory listings.');
+        return;
+      }
+
+      const extracted = [];
+      const lines = text.split(/\r?\n/);
+      const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i;
+      const urlRegex = /(https?:\/\/[^\s,]+|www\.[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}[^\s,]*)/i;
+      const phoneRegex = /(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})/;
+
+      // First check if lines are delimited by commas, tabs or pipes
+      lines.forEach(rawLine => {
+        const line = rawLine.trim();
+        if (!line) return;
+
+        const emailMatch = line.match(emailRegex);
+        if (emailMatch) {
+          const email = emailMatch[1];
+          const urlMatch = line.match(urlRegex);
+          const website = urlMatch ? (urlMatch[1].startsWith('http') ? urlMatch[1] : 'https://' + urlMatch[1]) : '';
+          const phoneMatch = line.match(phoneRegex);
+          const phone = phoneMatch ? phoneMatch[0] : '';
+
+          // Determine name and city from delimiters or parts
+          let name = '';
+          let city = document.getElementById('input-location')?.value.trim() || 'Local Area';
+
+          const parts = line.split(/[,|\t]/).map(p => p.trim()).filter(Boolean);
+          if (parts.length >= 2) {
+            // First non-email, non-url part is name
+            for (let part of parts) {
+              if (!part.includes('@') && !part.toLowerCase().includes('http') && !part.toLowerCase().includes('www.')) {
+                if (!name) {
+                  name = part;
+                } else if (city === 'Local Area') {
+                  city = part;
+                }
+              }
+            }
+          }
+
+          if (!name) {
+            // Derive clean name from domain
+            const domain = email.split('@')[1] || '';
+            name = domain.split('.')[0];
+            name = name.charAt(0).toUpperCase() + name.slice(1);
+          }
+
+          extracted.push({
+            name: name,
+            city: city,
+            email: email,
+            phone: phone,
+            website: website,
+            status: 'pending',
+            selected: true
+          });
+        }
+      });
+
+      if (extracted.length === 0) {
+        alert('No email addresses detected in the pasted text. Please verify the content includes valid emails.');
+        return;
+      }
+
+      appState.leads = [...extracted, ...appState.leads];
+      renderLeadsTable();
+      updateStats();
+      saveLeadsToStorage(); sendToVN('SYNC_LEADS', appState.leads);
+
+      document.getElementById('smart-paste-text').value = '';
+      closeAddProspectsModal();
+      alert(`Success! ${extracted.length} prospects extracted and added to your campaign.`);
+    }
+
+    function loadSampleDemoLeads() {
+      appState.leads = [
+        { name: "Apex Dental Studio", city: "Miami", email: "hello@apexdentalmiami.com", phone: "+1 (305) 555-0199", website: "https://apexdentalmiami.com", status: "pending", selected: true },
+        { name: "Harbor Real Estate Group", city: "Austin", email: "contact@harborrealtysa.com", phone: "+1 (512) 555-0144", website: "https://harborrealtysa.com", status: "ai_ready", selected: true, email_body: "Hi team at Harbor Real Estate, noticed your listings in Austin..." },
+        { name: "The Rustic Grill & Bar", city: "London", email: "bookings@therusticgrill.co.uk", phone: "+44 20 7946 0991", website: "https://therusticgrill.co.uk", status: "sent", selected: false, email_body: "Hi there, loved your recent menu updates..." },
+        { name: "Summit Law Partners", city: "Chicago", email: "info@summitlawchicago.com", phone: "+1 (312) 555-0182", website: "https://summitlawchicago.com", status: "pending", selected: true },
+        { name: "IronCore Fitness Club", city: "New York", email: "team@ironcorefitnessnyc.com", phone: "+1 (212) 555-0165", website: "https://ironcorefitnessnyc.com", status: "pending", selected: true }
+      ];
+      renderLeadsTable();
+      updateStats();
+      closeAddProspectsModal();
+    }
+
+    // ============================================================
+    // AI DISCOVERY & LIVE WEB GROUNDING
+    // ============================================================
+    function triggerDiscoverLeads() {
+      const niche = document.getElementById('input-niche').value.trim();
+      const location = document.getElementById('input-location').value.trim();
+      const count = parseInt(document.getElementById('input-lead-count').value) || 10;
+      const webSearch = document.getElementById('cfg-web-search')?.checked !== false;
+
+      if (!niche && !location) {
+        alert('Please enter a target niche and city/location to discover leads.');
+        return;
+      }
+
+      setDiscoverLoading(true);
+
+      if (window.chrome && window.chrome.webview) {
+        sendToVN('DISCOVER_LEADS', {
+          niche: niche,
+          location: location,
+          count: count,
+          webSearch: webSearch
+        });
+      } else {
+        // Fallback simulation for external browser testing
+        setTimeout(() => {
+          const cleanNiche = niche || 'Services';
+          const cleanLoc = location || 'Metropolitan Area';
+          const cleanSlug = cleanNiche.toLowerCase().replace(/[^a-z0-9]/g, '');
+          const locSlug = cleanLoc.toLowerCase().replace(/[^a-z0-9]/g, '');
+          const simLeads = [];
+          for (let i = 1; i <= count; i++) {
+            simLeads.push({
+              name: `${cleanLoc} ${cleanNiche} Center #${i}`,
+              city: cleanLoc,
+              email: `contact${i}@${cleanSlug}${locSlug}.com`,
+              phone: `+1 (555) 234-${1000 + i}`,
+              website: `https://www.${cleanSlug}${locSlug}.com`,
+              status: 'pending',
+              selected: true
+            });
+          }
+          handleDiscoveredLeadsResponse(JSON.stringify(simLeads));
+        }, 1200);
+      }
+    }
+
+    function setDiscoverLoading(isLoading) {
+      const btn = document.getElementById('btn-discover-leads');
+      const icon = document.getElementById('icon-discover');
+      const label = document.getElementById('label-discover');
+      if (!btn || !label) return;
+
+      if (isLoading) {
+        btn.disabled = true;
+        btn.classList.add('opacity-75', 'cursor-not-allowed');
+        label.innerText = 'Searching Web...';
+        if (icon) icon.classList.add('animate-spin');
+      } else {
+        btn.disabled = false;
+        btn.classList.remove('opacity-75', 'cursor-not-allowed');
+        label.innerText = 'Discover';
+        if (icon) icon.classList.remove('animate-spin');
+      }
+    }
+
+    function handleDiscoveredLeadsResponse(rawText) {
+      setDiscoverLoading(false);
+      if (!rawText) return;
+
+      try {
+        // Strip markdown code fences e.g. ```json ... ```
+        let clean = rawText.trim();
+        clean = clean.replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
+        const leads = JSON.parse(clean);
+        if (Array.isArray(leads) && leads.length > 0) {
+          const formatted = leads.map(l => ({
+            name: l.name || 'Business Prospect',
+            city: l.city || document.getElementById('input-location').value.trim() || 'Local',
+            email: l.email || '',
+            phone: l.phone || '',
+            website: l.website || '',
+            status: 'pending',
+            selected: true
+          }));
+
+          appState.leads = [...formatted, ...appState.leads];
+          renderLeadsTable();
+          updateStats();
+          saveLeadsToStorage(); sendToVN('SYNC_LEADS', appState.leads);
+          alert(`Success! Discovered and added ${formatted.length} verified prospects to your list.`);
+        }
+      } catch (err) {
+        console.error('Error parsing discovered leads:', err, rawText);
+        alert('Discovered leads received, but response could not be parsed into rows. Please try again.');
+      }
+    }
+
+    function triggerImportCSV() {
+      if (window.chrome && window.chrome.webview) {
+        sendToVN('IMPORT_CSV_DIALOG', {});
+      } else {
+        const picker = document.getElementById('csv-file-picker');
+        if (picker) {
+          picker.value = '';
+          picker.click();
+        }
+      }
+    }
+
+    function handleCSVFileSelected(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        parseCSVText(e.target.result);
+      };
+      reader.readAsText(file);
+    }
+
+    function parseCSVText(csvText) {
+      if (!csvText) return;
+      const lines = csvText.split(/\r\n|\n|\r/);
+      if (lines.length < 2) return;
+      const parsedLeads = [];
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        const cols = line.split(',');
+        if (cols.length >= 3) {
+          const clean = (val) => (val || '').replace(/^["']|["']$/g, '').trim();
+          parsedLeads.push({
+            name: clean(cols[0]),
+            city: clean(cols[1]),
+            email: clean(cols[2]),
+            phone: cols[3] ? clean(cols[3]) : '',
+            website: cols[4] ? clean(cols[4]) : '',
+            status: 'pending',
+            selected: true
+          });
+        }
+      }
+      if (parsedLeads.length > 0) {
+        appState.leads = parsedLeads;
+        renderLeadsTable();
+        updateStats();
+        saveLeadsToStorage(); sendToVN('SYNC_LEADS', appState.leads);
+      }
+    }
+
+    function triggerGenerateAI() {
+      const selectedIndices = appState.leads.map((l, i) => l.selected ? i : -1).filter(i => i !== -1);
+      if (selectedIndices.length === 0) {
+        alert('Please select at least one prospect using the checkbox.');
+        return;
+      }
+      // High-Volume Guard
+      if (selectedIndices.length > 50) {
+        const proceed = confirm(`Notice: You have selected ${selectedIndices.length} prospects for AI email generation.\n\nThis will make ${selectedIndices.length} sequential API calls to OpenRouter. Proceed with this batch?`);
+        if (!proceed) return;
+      }
+      sendToVN('GENERATE_BATCH_AI', { indices: selectedIndices, prompts: appState.prompts, config: appState.config });
+    }
+
+    function triggerSendCampaign() {
+      const readyIndices = appState.leads.map((l, i) => (l.selected && l.status === 'ai_ready') ? i : -1).filter(i => i !== -1);
+      if (readyIndices.length === 0) {
+        alert('No prospects selected with "Email Ready" status.');
+        return;
+      }
+      // High-Volume Deliverability Safeguard
+      let warningMsg = `Start sending cold outreach emails to ${readyIndices.length} prospects via SMTP2GO?`;
+      if (readyIndices.length > 100) {
+        const delay = appState.config.delaySeconds || 5;
+        const estMinutes = Math.round((readyIndices.length * delay) / 60);
+        warningMsg = `⚠️ Large Campaign Warning:\nYou are about to send ${readyIndices.length} emails.\nWith a ${delay}s delay between emails, this campaign will run for ~${estMinutes} minutes.\n\nMake sure your SMTP2GO daily sending limit allows this volume.\n\nDo you wish to start sending now?`;
+      }
+      if (!confirm(warningMsg)) {
+        return;
+      }
+      sendToVN('SEND_BATCH_CAMPAIGN', { indices: readyIndices, config: appState.config });
+    }
+
+    function triggerExportCSV() {
+      sendToVN('EXPORT_CSV', { leads: appState.leads });
+    }
+
+    function triggerCancelTask() {
+      sendToVN('CANCEL_TASK', {});
+    }
+
+    function insertVariable(v) {
+      const textarea = document.getElementById('prompt-user');
+      textarea.value += ' ' + v;
+      textarea.focus();
+    }
+
+    function savePromptSettings() {
+      appState.prompts.language = document.getElementById('prompt-language').value;
+      appState.prompts.system = document.getElementById('prompt-system').value;
+      appState.prompts.user = document.getElementById('prompt-user').value;
+      appState.config.emailLanguage = appState.prompts.language;
+      sendToVN('SAVE_PROMPT', appState.prompts);
+      alert(`Outreach Template saved! Language set to ${appState.prompts.language}.`);
+    }
+
+    function saveAllSettings() {
+      appState.config.openRouterKey = document.getElementById('cfg-openrouter-key').value;
+      appState.config.openRouterModel = document.getElementById('cfg-openrouter-model').value;
+      appState.config.smtpKey = document.getElementById('cfg-smtp-key').value;
+      appState.config.senderName = document.getElementById('cfg-sender-name').value;
+      appState.config.senderEmail = document.getElementById('cfg-sender-email').value;
+      appState.config.emailSubject = document.getElementById('cfg-email-subject').value;
+      appState.config.delaySeconds = parseInt(document.getElementById('cfg-delay-seconds').value) || 5;
+      appState.config.myService = document.getElementById('cfg-my-service').value;
+
+      sendToVN('SAVE_CONFIG', appState.config);
+      alert('Configuration saved.');
+    }
+
+    function testSMTP2GOConnection() {
+      const key = document.getElementById('cfg-smtp-key').value;
+      const sender = document.getElementById('cfg-sender-email').value;
+      if (!key || !sender) {
+        alert('Please provide your SMTP2GO API Key and Sender Email before testing.');
+        return;
+      }
+      sendToVN('TEST_SMTP_CONNECTION', { key: key, sender: sender });
+    }
+
+        function openLicenseDialog() {
+      sendToVN('OPEN_REGISTRATION_DIALOG', {});
+    }
+
+    function updateLicenseUI() {
+      const headerBadge = document.getElementById('header-license-badge');
+      const cardBadge = document.getElementById('settings-lic-badge');
+      const cardUser = document.getElementById('settings-lic-user');
+      const cardDesc = document.getElementById('settings-lic-status-desc');
+
+      const isReg = String(appState.license.isRegistered).trim().toLowerCase() === 'true';
+      const user = (appState.license.regUser || '').trim();
+      const days = (appState.license.daysLeft || '').trim();
+
+      if (isReg) {
+        if (headerBadge) {
+          headerBadge.innerHTML = `
+            <span class="px-2.5 py-0.5 text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center gap-1.5 shadow-sm shadow-emerald-950/40" title="Lifetime Commercial License Active">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              PRO &bull; Licensed ${user ? 'to ' + escapeHtml(user) : ''}
+            </span>
+          `;
+        }
+        if (cardBadge) {
+          cardBadge.innerHTML = `
+            <span class="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 shadow-sm">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+              </svg>
+              Lifetime License Active
+            </span>
+          `;
+        }
+        if (cardUser) {
+          cardUser.textContent = user ? `Registered to: ${user}` : 'Commercial Single-User License Activated';
+        }
+        if (cardDesc) {
+          cardDesc.textContent = "Your copy of LeadHunter AI Desk is permanently activated with full commercial rights. All features, batch limits, and updates are unlocked.";
+        }
+      } else {
+        const trialLabel = days && days !== '0' ? `${days} Days Left in Trial` : 'Evaluation Mode';
+        if (headerBadge) {
+          headerBadge.innerHTML = `
+            <button type="button" onclick="openLicenseDialog()" class="px-2.5 py-0.5 text-[10px] font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 rounded-full flex items-center gap-1.5 transition cursor-pointer shadow-sm shadow-amber-950/40" title="Click to enter your Registration Key">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+              Trial Mode (${escapeHtml(trialLabel)}) &bull; Activate
+            </button>
+          `;
+        }
+        if (cardBadge) {
+          cardBadge.innerHTML = `
+            <span class="px-3 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1.5 shadow-sm">
+              <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+              Unregistered (${escapeHtml(trialLabel)})
+            </span>
+          `;
+        }
+        if (cardUser) {
+          cardUser.textContent = "Evaluation / Trial License";
+        }
+        if (cardDesc) {
+          cardDesc.textContent = "You are currently using LeadHunter AI Desk in evaluation mode. Click 'Enter License Key' below and enter the Registration Key you received on Gumroad to permanently unlock the software.";
+        }
+      }
+    }
+
+    function populateConfigUI() {
+      document.getElementById('cfg-openrouter-key').value = appState.config.openRouterKey || '';
+      const modelSelect = document.getElementById('cfg-openrouter-model');
+      if (modelSelect) {
+        modelSelect.value = appState.config.openRouterModel || 'deepseek/deepseek-chat';
+        updateModelInfoCard(modelSelect.value);
+      }
+      document.getElementById('cfg-smtp-key').value = appState.config.smtpKey || '';
+      document.getElementById('cfg-sender-name').value = appState.config.senderName || '';
+      document.getElementById('cfg-sender-email').value = appState.config.senderEmail || '';
+      document.getElementById('cfg-email-subject').value = appState.config.emailSubject || 'Quick question regarding {company_name}';
+      document.getElementById('cfg-delay-seconds').value = appState.config.delaySeconds || 5;
+      document.getElementById('cfg-my-service').value = appState.config.myService || '';
+      const langSelect = document.getElementById('prompt-language');
+      if (langSelect && appState.config.emailLanguage) {
+        langSelect.value = appState.config.emailLanguage;
+      }
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    const defaultDemoLeads = [
+      { name: "Apex Dental Studio", city: "Miami", email: "info@apexdentalmiami.com", phone: "+1 (305) 555-0199", website: "https://apexdentalmiami.com", status: "pending", selected: true },
+      { name: "Harbor Real Estate Group", city: "Austin", email: "contact@harborrealtysa.com", phone: "+1 (512) 555-0144", website: "https://harborrealtysa.com", status: "ai_ready", selected: true, email_body: "<p>Hi <strong>Harbor Real Estate</strong> team,</p><p>I noticed your properties in Austin and love how well curated your listings are. However, I observed an opportunity to capture 3x more qualified buyer leads by modernizing your inquiry funnels.</p><p>We specialize in <strong>high-converting lead funnels</strong> for premier real estate firms. Would you be open to a quick 5-minute chat this Thursday?</p><p>Best regards,<br><strong>Alex Morgan</strong><br><a href=\"https://myagency.com\" class=\"text-indigo-400 underline\">myagency.com</a></p>" },
+      { name: "The Rustic Grill", city: "London", email: "bookings@therusticgrill.co.uk", phone: "+44 20 7946 0991", website: "https://therusticgrill.co.uk", status: "sent", selected: false, email_body: "<p>Hi team at <strong>The Rustic Grill</strong>,</p><p>Loved your recent seasonal menu updates in London! We help high-end hospitality venues double private event bookings through automated guest acquisition.</p><p>Would you be open to exploring how this could work for your London location?</p><p>Warm regards,<br><strong>Alex Morgan</strong></p>" }
+    ];
+
+    window.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    window.addEventListener('drop', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        const file = e.dataTransfer.files[0];
+        if (file.name.toLowerCase().endsWith('.csv')) {
+          const reader = new FileReader();
+          reader.onload = function(evt) {
+            parseCSVText(evt.target.result);
+          };
+          reader.readAsText(file);
+        }
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      populateModelDropdown();
+      populateConfigUI();
+      updateLicenseUI();
+      fetchOpenRouterModels();
+      
+      // Load the last saved list from localStorage, or start clean with empty list
+      const savedLeads = loadLeadsFromStorage();
+      if (savedLeads !== null) {
+        appState.leads = savedLeads;
+      } else {
+        // Fresh start: Start blank (empty table) with prompt to discover or load demo
+        appState.leads = [];
+      }
+      
+      renderLeadsTable();
+      updateStats();
+      sendToVN('UI_READY', {});
+    });
+  </script>
+</body>
+</html>

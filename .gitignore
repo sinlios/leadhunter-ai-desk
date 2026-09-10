@@ -1,0 +1,20 @@
+# Local user configuration & secrets
+*.bak
+*.tmp
+*.log
+leads_private*.csv
+license.txt
+LICENSING_AND_LAUNCH_GUIDE.md
+MARKETING_KIT.md
+readme.txt
+
+# Compiled binary (distributed via GitHub Releases)
+LeadHunterAI.exe
+
+# Build caches & temporary directories
+dist/
+__pycache__/
+
+# VisualNEO Win backup files
+*.~pub
+*.pub.bak
